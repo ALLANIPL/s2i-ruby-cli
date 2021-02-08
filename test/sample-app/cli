@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+
+class App < Thor
+  desc 'hello_world', 'Prints hello world'
+  def hello_world
+    print "Hello world!"
+  end
+end
+
+App.start

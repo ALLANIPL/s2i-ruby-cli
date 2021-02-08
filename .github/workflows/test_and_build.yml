@@ -1,0 +1,60 @@
+on:
+  push:
+    branches:
+      - master
+
+env:
+  S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/latest
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-docker-version:
+          - 2.6-slim
+          - 2.6-buster
+          - 2.7-slim
+          - 2.7-buster
+          - 3.0-slim
+          - 3.0-buster
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make Builder
+        run: |
+          BASE_RUBY_VERSION=${{matrix.ruby-docker-version}} make
+          echo "image_version=`BASE_RUBY_VERSION=${{matrix.ruby-docker-version}} make echo_image_name`" >> $GITHUB_ENV
+      - name: install s2i binary
+        run: |
+          echo ===== Installing s2i from ${{ env.S2I_URL }} =====
+          mkdir /tmp/s2i/ && cd /tmp/s2i/
+          curl -s ${{ env.S2I_URI }} \
+           | grep browser_download_url \
+           | grep linux-amd64 \
+           | cut -d '"' -f 4 \
+           | wget -qi -
+           tar xvf source-to-image*.gz
+           sudo mv s2i /usr/bin
+           which s2i
+           s2i version
+      - name: Test on sample-app
+        run: |
+          cd test/sample-app
+          s2i build . ${{env.image_version}} sample-app
+          docker run sample-app hello_world
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: zewelor
+          password: ${{ secrets.CR_PAT }}
+      -
+        name: Build and push data_provider
+        run: |
+          docker tag ${{env.image_version}} ghcr.io/allanipl/${{env.image_version}}
+          docker tag ${{env.image_version}} ghcr.io/allanipl/${{env.image_version}}-`cat version.txt`
+          docker push ghcr.io/allanipl/${{env.image_version}}
+          docker push ghcr.io/allanipl/${{env.image_version}}-`cat version.txt`

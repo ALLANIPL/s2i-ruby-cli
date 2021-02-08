@@ -1,0 +1,40 @@
+#!/bin/bash -e
+
+#
+# The 'assemble' script builds your application source ready to run.
+
+#
+# For more information refer to the documentation:
+#  https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
+#
+echo "---> Installing application source"
+cp -Rf /tmp/src/. ./
+
+apt-get update -y
+apt-get install build-essential -y --no-install-recommends
+
+echo "---> Building your Ruby application from source ..."
+if [ -f Gemfile ]; then
+  ADDTL_BUNDLE_ARGS="--retry 2"
+
+  BUNDLE_WITHOUT=${BUNDLE_WITHOUT:-"development:test"}
+
+  if [ -n "$BUNDLE_WITHOUT" ]; then
+    ADDTL_BUNDLE_ARGS+=" --without $BUNDLE_WITHOUT"
+  fi
+
+  echo "---> Running 'bundle install ${ADDTL_BUNDLE_ARGS}' ..."
+  bundle install --path /bundle ${ADDTL_BUNDLE_ARGS}
+
+  echo "---> Cleaning up unused ruby gems ..."
+  bundle clean -V
+fi
+
+if [ -n "$RUNTIME_PACKAGES" ]; then
+  apt-get install $RUNTIME_PACKAGES
+fi
+
+apt-get remove --purge -y build-essential
+apt-get autoremove --purge -y
+apt-get clean -y
+rm -rf /var/lib/apt/lists/*
