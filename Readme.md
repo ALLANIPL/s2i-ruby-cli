@@ -18,6 +18,10 @@ Currently building ruby versions:
 - 2.7-buster
 - 3.0-slim
 - 3.0-buster
+                 
+Download
+-------------
+All images are hosted [here](https://github.com/orgs/ALLANIPL/packages/container/package/s2i-ruby-cli)
 
 Usage
 ---------
