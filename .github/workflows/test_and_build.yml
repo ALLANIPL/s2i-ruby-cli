@@ -2,6 +2,8 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron: '0 0 * * 0'
 
 env:
   S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/latest
