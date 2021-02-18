@@ -10,6 +10,8 @@ Install [s2i](https://github.com/openshift/source-to-image#installation) via pre
 
 ```
 $ s2i build . ghcr.io/allanipl/s2i-ruby-cli:3.0-slim sample-app
+[...]
+Build completed successfully
 $ docker run --rm sample-app
 Commands:
   cli hello_world     # Prints hello world
