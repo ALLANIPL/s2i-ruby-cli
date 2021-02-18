@@ -9,7 +9,11 @@ Build and run
 Install [s2i](https://github.com/openshift/source-to-image#installation) via preferred method. Then:
 
 ```
-s2i build . ghcr.io/allanipl/s2i-ruby-cli:3.0-slim sample-app
-docker run --rm sample-app
-docker run --rm sample-app hello_world
+$ s2i build . ghcr.io/allanipl/s2i-ruby-cli:3.0-slim sample-app
+$ docker run --rm sample-app
+Commands:
+  cli hello_world     # Prints hello world
+  cli help [COMMAND]  # Describe available commands or one specific command
+$ docker run --rm sample-app hello_world
+Hello world!
 ```
